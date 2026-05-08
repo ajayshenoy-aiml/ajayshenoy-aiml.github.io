@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Probability Models — Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    /* Two-column layout: main content + sticky sidebar */
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    /* Sticky enroll sidebar */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.7);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* Main content */
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    /* Running examples strip */
+    .examples-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .example-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .example-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .example-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    /* What you'll learn */
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .cohort-section {
+      padding: 32px 0 0;
+    }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111;
+    }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary {
+      font-size: 0.88rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .schedule-num {
+      font-size: 0.72rem;
+      color: #bbb;
+      font-weight: 500;
+      min-width: 16px;
+    }
+    .schedule-date {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #111;
+      min-width: 130px;
+    }
+    .schedule-time {
+      font-size: 0.82rem;
+      color: #888;
+    }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Introduction to Probability Models</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Probability &amp; Statistics · 4 Modules</span>
+        <h1>Introduction to Probability Models</h1>
+        <p class="sub">The probability course for people in software engineering and AI/ML.</p>
+        <p class="detail">Every concept is taught through systems you work with: load balancers, CI/CD pipelines, training runs, RAG pipelines, and AI agents. The same running examples follow you from sample spaces all the way to Markov chains.</p>
+      </div>
+
+      <div class="modules">
+        <p class="section-title" style="color: #111;">Modules</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>Introduction to Probability Theory</h3>
+              <p class="desc">Build the formal language of probability from the ground up. By the end you'll understand exactly what Bayes' theorem is doing, and why it's the right tool for updating beliefs from evidence.</p>
+              <div class="topics">
+                <span class="topic-tag">Sample spaces &amp; events</span>
+                <span class="topic-tag">Axioms of probability</span>
+                <span class="topic-tag">Equally likely outcomes</span>
+                <span class="topic-tag">Conditional probability</span>
+                <span class="topic-tag">Bayes' formula</span>
+                <span class="topic-tag">Independence</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>Random Variables</h3>
+              <p class="desc">You'll meet important probability distributions that appears in ML and systems work, and learn to derive important properties from first principles.</p>
+              <div class="topics">
+                <span class="topic-tag">PMFs &amp; expectation</span>
+                <span class="topic-tag">Bernoulli &amp; Binomial</span>
+                <span class="topic-tag">Geometric</span>
+                <span class="topic-tag">Poisson</span>
+                <span class="topic-tag">PDFs &amp; CDFs</span>
+                <span class="topic-tag">Uniform &amp; Exponential</span>
+                <span class="topic-tag">Normal distribution</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Conditional Expectation &amp; Limit Theorems</h3>
+              <p class="desc">Conditioning is how you reason under partial information. This module covers the law of total expectation, then proves the Central Limit Theorem - the reason normality keeps showing up in ML.</p>
+              <div class="topics">
+                <span class="topic-tag">Conditional distributions</span>
+                <span class="topic-tag">Law of total expectation</span>
+                <span class="topic-tag">Computing by conditioning</span>
+                <span class="topic-tag">Random sums</span>
+                <span class="topic-tag">First-passage times</span>
+                <span class="topic-tag">Central Limit Theorem</span>
+                <span class="topic-tag">Law of Large Numbers</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>Introduction to Markov Chains</h3>
+              <p class="desc">The most powerful model in applied probability. Server health cycles, user sessions, policy updates in RLHF, and PageRank are all Markov chains. This module gives you the tools to analyse any of them.</p>
+              <div class="topics">
+                <span class="topic-tag">Markov property</span>
+                <span class="topic-tag">n-step transition probabilities</span>
+                <span class="topic-tag">Classification of states</span>
+                <span class="topic-tag">Stationary distributions</span>
+                <span class="topic-tag">Detailed balance</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="examples-section">
+        <p class="section-title">Running Examples Throughout the Course</p>
+        <div class="examples-grid">
+          <div class="example-chip">
+            <p class="chip-label">Software Engineering</p>
+            <p class="chip-name">Load Balancer</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Software Engineering</p>
+            <p class="chip-name">Cache</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Software Engineering</p>
+            <p class="chip-name">CI/CD Pipeline</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Software Engineering</p>
+            <p class="chip-name">Distributed Database</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Machine Learning</p>
+            <p class="chip-name">Binary Classifier</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Machine Learning</p>
+            <p class="chip-name">Training Run</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Machine Learning</p>
+            <p class="chip-name">Recommender System</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">LLMs &amp; Agents</p>
+            <p class="chip-name">Token Sampling</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">LLMs &amp; Agents</p>
+            <p class="chip-name">RAG Pipeline</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">LLMs &amp; Agents</p>
+            <p class="chip-name">AI Agent Loop</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Machine Learning</p>
+            <p class="chip-name">Data Pipeline</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">LLMs &amp; Agents</p>
+            <p class="chip-name">RLHF / Preference Model</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> Why a cache hit rate is a probability, and how to reason about it formally</div>
+          <div class="learn-item"><span class="check">✓</span> How Bayes' theorem powers spam filters, fraud detectors, and diagnostic tests</div>
+          <div class="learn-item"><span class="check">✓</span> Why your recommender system's click-through rate is a Binomial random variable, and how to reason about variance in A/B tests</div>
+          <div class="learn-item"><span class="check">✓</span> The geometric distribution behind retry loops and cold-start caches</div>
+          <div class="learn-item"><span class="check">✓</span> How PageRank is literally a stationary distribution of a Markov chain</div>
+          <div class="learn-item"><span class="check">✓</span> How to compute the probability a CI/CD pipeline fails, and which stage is most likely the culprit</div>
+          <div class="learn-item"><span class="check">✓</span> How a bigram language model is a Markov chain over a vocabulary</div>
+          <div class="learn-item"><span class="check">✓</span> The law of total expectation — the key tool behind expected query latency and retry cost</div>
+        </div>
+      </div>
+
+      <div class="cohort-section">
+        <div class="cohort-header">
+          <span class="cohort-title">June Cohort</span>
+          <span class="cohort-tag">Two Months · Live Course</span>
+        </div>
+        <p class="cohort-summary">Every Monday, 7:00 – 9:00 AM IST &nbsp;·&nbsp; 1 June – 20 July 2026</p>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <span class="schedule-num">1</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">1</div></div>
+            <span class="schedule-date">Monday, 1 June</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">2</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">8</div></div>
+            <span class="schedule-date">Monday, 8 June</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">3</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">15</div></div>
+            <span class="schedule-date">Monday, 15 June</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">4</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">22</div></div>
+            <span class="schedule-date">Monday, 22 June</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">5</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">29</div></div>
+            <span class="schedule-date">Monday, 29 June</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">6</span>
+            <div class="schedule-cal"><div class="cal-month">Jul</div><div class="cal-day">6</div></div>
+            <span class="schedule-date">Monday, 6 July</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">7</span>
+            <div class="schedule-cal"><div class="cal-month">Jul</div><div class="cal-day">13</div></div>
+            <span class="schedule-date">Monday, 13 July</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">8</span>
+            <div class="schedule-cal"><div class="cal-month">Jul</div><div class="cal-day">20</div></div>
+            <span class="schedule-date">Monday, 20 July</span>
+            <span class="schedule-time">7:00 – 9:00 AM IST</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this course</p>
+        <div class="price-row">
+          <span class="original">₹30,000</span>
+          <span class="discounted">₹14,999</span>
+        </div>
+        <p class="savings" style="color: red;">10 discount codes left</p>
+        <a class="enroll-btn" href="https://pages.razorpay.com/pl_SmS4WyZEJyo6q9/view" target="_blank" rel="noopener">Enroll Now →</a>
+        <p class="guarantee">Live classes</p>
+        <p class="guarantee">Lifetime access to recordings</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>

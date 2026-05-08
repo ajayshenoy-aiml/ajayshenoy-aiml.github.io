@@ -3,22 +3,240 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ajay Shenoy — AI/ML</title>
+  <title>Ajay Shenoy</title>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: system-ui, sans-serif;
-      max-width: 640px;
-      margin: 80px auto;
-      padding: 0 24px;
-      color: #1a1a1a;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
       line-height: 1.6;
     }
-    h1 { font-size: 1.8rem; margin-bottom: 8px; }
-    p  { color: #555; }
+
+    nav {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links { display: flex; gap: 24px; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    .hero {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 48px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .hero .tagline {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 24px;
+      letter-spacing: 0.01em;
+    }
+    .hero .bio {
+      font-size: 1.05rem;
+      color: #333;
+      max-width: 580px;
+      line-height: 1.8;
+    }
+    .hero .bio p + p { margin-top: 14px; }
+
+    .social-links {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .social-links a {
+      font-size: 0.88rem;
+      color: #555;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .social-links a:hover { color: #111; }
+    .social-links .count {
+      font-weight: 700;
+      color: #111;
+    }
+
+    .section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .section:last-of-type { border-bottom: none; }
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 24px;
+    }
+
+    /* Teaching section */
+    .topic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .topic-item {
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.6;
+      padding-left: 16px;
+      border-left: 2px solid #e8e8e8;
+    }
+    .topic-item strong { color: #111; }
+
+    /* Research section */
+    .paper-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .paper-item { font-size: 0.9rem; color: #444; line-height: 1.6; }
+    .paper-item .paper-title { color: #111; font-weight: 600; }
+    .paper-item .paper-venue { color: #888; font-size: 0.82rem; margin-top: 2px; }
+
+    /* Course card */
+    .course-card {
+      display: block;
+      text-decoration: none;
+      border: 1px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 28px 32px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .course-card:hover {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.06);
+    }
+    .course-card .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+    }
+    .course-card h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .course-card .desc {
+      font-size: 0.92rem;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.65;
+      max-width: 520px;
+    }
+    .module-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .module-pill {
+      font-size: 0.78rem;
+      background: #f5f5f5;
+      color: #444;
+      border-radius: 6px;
+      padding: 4px 11px;
+    }
+    .course-meta {
+      font-size: 0.82rem;
+      color: #888;
+    }
+    .course-card .cta {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #2563eb;
+      font-weight: 500;
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
-  <h1>Ajay Shenoy</h1>
-  <p>AI/ML — coming soon.</p>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="https://www.youtube.com/@ajayshenoy7991" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://scholar.google.com/citations?user=DbXDLv4AAAAJ&hl=en" target="_blank" rel="noopener">Research</a>
+      <a href="https://www.linkedin.com/in/bastyajayshenoy/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Hello, I am Ajay</h1>
+    <p class="tagline">14 years in AI/ML. Consulting engineer and instructor in the AI/ML space.</p>
+    <div class="bio">
+      <p>I teach AI/ML to a wide range of audiences. From beginners to PhD grads.</p>
+      <p>I was introduced to the world of AI/ML while doing my PhD at IISc. After my PhD, I jumped from rigorous math to low level coding to optimize a custom AI hardware for AlphaICs. I have since used AI for retail supply chain problems at Target, and for computer vision at Harman. I have taught more than 2000 students at Scaler.</p>
+      <p>I have published 10 papers, 4 of which are journal articles in IEEE Transactions.</p>
+    </div>
+  </div>
+
+  <div class="social-links">
+    <a href="https://www.youtube.com/@ajayshenoy7991" target="_blank" rel="noopener">YouTube ↗</a>
+    <a href="https://scholar.google.com/citations?user=DbXDLv4AAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar ↗</a>
+    <a href="https://www.linkedin.com/in/bastyajayshenoy/" target="_blank" rel="noopener">LinkedIn ↗</a>
+  </div>
+
+  
+
+  <div class="section">
+    <p class="section-label">Upcoming Course</p>
+    <a class="course-card" href="probability.html">
+      <span class="tag">Probability &amp; Statistics · 4 Modules</span>
+      <h2>Introduction to Probability Models</h2>
+      <p class="desc">The probability course for software engineers and AI/ML practitioners. Every concept taught through systems you already work with — load balancers, CI/CD pipelines, training runs, RAG pipelines, and AI agents.</p>
+      <div class="module-grid">
+        <span class="module-pill">01 · Probability Theory</span>
+        <span class="module-pill">02 · Random Variables</span>
+        <span class="module-pill">03 · Conditional Expectation &amp; Limit Theorems</span>
+        <span class="module-pill">04 · Markov Chains</span>
+      </div>
+      <p class="course-meta">June Cohort &nbsp;·&nbsp; 1 Jun – 20 Jul 2026 &nbsp;·&nbsp; Mondays, 7:00 – 9:00 AM IST</p>
+      <span class="cta">View course →</span>
+    </a>
+  </div>
+
+  <footer>© 2025 Ajay Shenoy</footer>
+
 </body>
 </html>
