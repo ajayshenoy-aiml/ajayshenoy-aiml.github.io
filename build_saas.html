@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build Your First SaaS in 12 Hours - Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.9);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discount-divider {
+      margin: 20px 0 16px;
+      border-top: 1px solid #e8eef8;
+    }
+    .discount-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .discount-link {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .discount-link:hover { text-decoration: underline; }
+
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+    }
+
+    .stack-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .stack-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .stack-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .stack-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .cohort-section { padding: 0 0 20px; }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title { font-size: 1rem; font-weight: 700; color: #111; }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary { font-size: 0.88rem; color: #666; margin-bottom: 20px; }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .schedule-num { font-size: 0.72rem; color: #bbb; font-weight: 500; min-width: 16px; }
+    .schedule-date { font-size: 0.88rem; font-weight: 600; color: #111; min-width: 160px; }
+    .schedule-time { font-size: 0.75rem; color: #2563eb; }
+    .schedule-desc { font-size: 0.82rem; color: #888; }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Build Your First SaaS in 12 Hours</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Claude Code · 4 Sessions</span>
+        <h1>Build Your First SaaS with Claude Code</h1>
+        <p class="sub">Ship a product management tool over <span style="color:#dc2626;text-decoration:underline;text-decoration-color:#dc2626;">two weekends</span> using Claude Code and Cloudflare.</p>
+        <p class="detail">You'll build a real JIRA-style issue tracker - live on a custom domain - starting from session one. Every session ships working software. You'll learn how to direct AI agents as engineering tools, not just autocomplete: parallelizing work across multiple agents, guarding against hallucinations with CI gates, and rolling back deployments safely.</p>
+      </div>
+
+      <div class="stack-section">
+        <p class="section-title">Tech Stack</p>
+        <div class="stack-grid">
+          <div class="stack-chip">
+            <p class="chip-label">Hosting</p>
+            <p class="chip-name">Cloudflare Workers</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Auth</p>
+            <p class="chip-name">Better Auth (magic-link)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Database</p>
+            <p class="chip-name">D1 (SQLite)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Realtime</p>
+            <p class="chip-name">Durable Objects</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Search</p>
+            <p class="chip-name">D1 FTS5 → Vectorize</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Storage</p>
+            <p class="chip-name">R2 (attachments)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Async</p>
+            <p class="chip-name">Cloudflare Queues</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">AI</p>
+            <p class="chip-name">Claude </p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Observability</p>
+            <p class="chip-name">Logpush</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> Deploy to a live domain in the first session, before any features are complete</div>
+          <div class="learn-item"><span class="check">✓</span> Direct AI agents using CLIs as their hands - not abstract prompts</div>
+          <div class="learn-item"><span class="check">✓</span> Set up CI gates that prevent agents from shipping broken code</div>
+          <div class="learn-item"><span class="check">✓</span> Run multiple agents in parallel using Git worktrees, each owning a separate feature</div>
+          <div class="learn-item"><span class="check">✓</span> Implement magic-link auth with org-domain whitelisting</div>
+          <div class="learn-item"><span class="check">✓</span> Use Durable Objects for per-issue real-time collaboration over WebSockets</div>
+          <div class="learn-item"><span class="check">✓</span> Roll back deployments safely with wrangler rollback</div>
+          <div class="learn-item"><span class="check">✓</span> Add RBAC, audit logging, and observability on live traffic</div>
+        </div>
+      </div>
+
+      <div class="modules">
+        <p class="section-title">Sessions</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>Production from Hour One</h3>
+              <p class="desc">Deploy Better Auth with magic-link sign-in and your first feature - create and view an issue - to a live domain. No staging; real users from the start.</p>
+              <div class="topics">
+                <span class="topic-tag">Cloudflare Workers setup</span>
+                <span class="topic-tag">Better Auth</span>
+                <span class="topic-tag">Magic-link sign-in</span>
+                <span class="topic-tag">D1 schema</span>
+                <span class="topic-tag">wrangler deploy</span>
+                <span class="topic-tag">Custom domain</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>AI-Native Dev Setup &amp; Hallucination Guards</h3>
+              <p class="desc">Wire up CI so agents can't merge broken code. Learn to give agents TypeScript types, test frameworks, and CLI tools as their only interface - reducing hallucinations by design.</p>
+              <div class="topics">
+                <span class="topic-tag">CI gates</span>
+                <span class="topic-tag">wrangler types</span>
+                <span class="topic-tag">Pre-merge typecheck</span>
+                <span class="topic-tag">Test-first development</span>
+                <span class="topic-tag">Multi-agent code review</span>
+                <span class="topic-tag">Branch protection</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Multi-Agent Parallelization &amp; Observability</h3>
+              <p class="desc">Run multiple agents simultaneously using Git worktrees - each owning a conflict-free slice of the codebase. Add Durable Objects for real-time collaboration. Observe live traffic with Analytics Engine.</p>
+              <div class="topics">
+                <span class="topic-tag">Git worktrees</span>
+                <span class="topic-tag">Durable Objects</span>
+                <span class="topic-tag">WebSockets</span>
+                <span class="topic-tag">Parallel agents</span>
+                <span class="topic-tag">Workers Logs</span>
+                <span class="topic-tag">Analytics Engine</span>
+                <span class="topic-tag">Merge sequencing</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>RBAC, Audit Logging &amp; Team Onboarding</h3>
+              <p class="desc">Lock down the app with role-based access control and a queryable audit log. Onboard your first teammates and resolve real issues - finishing with a fully deployed, production-grade internal tool.</p>
+              <div class="topics">
+                <span class="topic-tag">RBAC</span>
+                <span class="topic-tag">Audit logging</span>
+                <span class="topic-tag">Cloudflare Queues</span>
+                <span class="topic-tag">Email notifications</span>
+                <span class="topic-tag">Team onboarding</span>
+                <span class="topic-tag">wrangler rollback</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="cohort-section">
+        <p class="section-title">Schedule <span class="cohort-tag">4 Sessions · Live</span></p>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <span class="schedule-num">1</span>
+            <div class="schedule-cal"><div class="cal-month">May</div><div class="cal-day">30</div></div>
+            <div>
+              <div class="schedule-date">Saturday, 30 May</div>
+              <div class="schedule-time">3:00 – 6:00 PM IST</div>
+            </div>
+            <span class="schedule-desc">Session 1: Production from Hour One</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">2</span>
+            <div class="schedule-cal"><div class="cal-month">May</div><div class="cal-day">31</div></div>
+            <div>
+              <div class="schedule-date">Sunday, 31 May</div>
+              <div class="schedule-time">3:00 – 6:00 PM IST</div>
+            </div>
+            <span class="schedule-desc">Session 2: AI-Native Dev Setup &amp; Hallucination Guards</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">3</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">6</div></div>
+            <div>
+              <div class="schedule-date">Saturday, 6 June</div>
+              <div class="schedule-time">3:00 – 6:00 PM IST</div>
+            </div>
+            <span class="schedule-desc">Session 3: Multi-Agent Parallelization &amp; Observability</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">4</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">7</div></div>
+            <div>
+              <div class="schedule-date">Sunday, 7 June</div>
+              <div class="schedule-time">3:00 – 6:00 PM IST</div>
+            </div>
+            <span class="schedule-desc">Session 4: RBAC, Audit Logging &amp; Team Onboarding</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this course</p>
+        <div class="price-row">
+          <span class="original">₹40,000</span>
+          <span class="discounted">₹19,999</span>
+        </div>
+        <a class="enroll-btn" href="https://pages.razorpay.com/pl_Sqvc7viiNufpX2/view" target="_blank" rel="noopener">Enroll Now →</a>
+        <p style="margin-top:16px;font-size:0.88rem;color:#dc2626;font-weight:600;text-align:center;">9 discount codes left</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>
