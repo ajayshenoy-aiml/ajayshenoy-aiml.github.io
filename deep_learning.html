@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Deep Learning and PyTorch - Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.7);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discount-divider {
+      margin: 20px 0 16px;
+      border-top: 1px solid #e8eef8;
+    }
+    .discount-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .discount-link {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .discount-link:hover { text-decoration: underline; }
+
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    .examples-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .example-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .example-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .example-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .cohort-section {
+      padding: 32px 0 0;
+    }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111;
+    }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary {
+      font-size: 0.88rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .schedule-num {
+      font-size: 0.72rem;
+      color: #bbb;
+      font-weight: 500;
+      min-width: 16px;
+    }
+    .schedule-date {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #111;
+      min-width: 130px;
+    }
+    .schedule-time {
+      font-size: 0.82rem;
+      color: #888;
+    }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Introduction to Deep Learning and PyTorch</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Deep Learning · 4 Modules</span>
+        <h1>Introduction to Deep Learning and PyTorch</h1>
+        <p class="sub">A structured, hands-on, PyTorch-powered curriculum covering the fundamentals of neural networks, training, regularisation, and convolutional architectures.</p>
+        <p class="sub" style="margin-top: 10px;"><strong style="color: #2563eb;">Basic Python is all you need</strong>.</p>
+        <p class="sub" style="margin-top: 10px;">Prior ML knowledge is NOT required.</p>
+        <p class="sub" style="margin-top: 10px;">Prior PyTorch knowledge is NOT required.</p>
+        <p class="detail">Four modules, each with a capstone project. You will implement everything - autograd, training loops, data pipelines, CNNs - directly in PyTorch, without abstractions that obscure what is actually happening.</p>
+      </div>
+
+      <div class="modules">
+        <p class="section-title" style="color: #111;">Modules</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>PyTorch Fundamentals</h3>
+              <p class="desc">Build intuition for tensors, autograd, and the training loop from scratch. You'll fit a line manually with no <code>nn.Module</code>, then use <code>nn.Sequential</code>, save and load weights, and finish by learning a polynomial's coefficients from noisy data.</p>
+              <div class="topics">
+                <span class="topic-tag">Tensors &amp; dtypes</span>
+                <span class="topic-tag">Autograd</span>
+                <span class="topic-tag">Manual training loop</span>
+                <span class="topic-tag">nn.Sequential</span>
+                <span class="topic-tag">Save &amp; load</span>
+                <span class="topic-tag">Capstone: polynomial fitter</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>Classification &amp; Regression</h3>
+              <p class="desc">Apply the training loop to real tabular datasets across three problem types. You'll train binary classifiers, multiclass classifiers, and regression models - and develop a precise understanding of when to use each loss function.</p>
+              <div class="topics">
+                <span class="topic-tag">Binary classification</span>
+                <span class="topic-tag">Multiclass classification</span>
+                <span class="topic-tag">Regression</span>
+                <span class="topic-tag">BCELoss / CrossEntropyLoss / MSELoss</span>
+                <span class="topic-tag">Tabular datasets</span>
+                <span class="topic-tag">Capstone: end-to-end binary classifier</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Reliability</h3>
+              <p class="desc">Move from a model that runs to one that trains reliably. You'll build proper data pipelines, compare activation functions, add dropout, schedule the learning rate, checkpoint training, and implement early stopping.</p>
+              <div class="topics">
+                <span class="topic-tag">Custom nn.Module</span>
+                <span class="topic-tag">Dataset &amp; DataLoader</span>
+                <span class="topic-tag">Activations</span>
+                <span class="topic-tag">Dropout</span>
+                <span class="topic-tag">LR scheduling</span>
+                <span class="topic-tag">Checkpointing</span>
+                <span class="topic-tag">Early stopping</span>
+                <span class="topic-tag">Capstone: end-to-end multiclass classifier</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>Convolutional Neural Networks</h3>
+              <p class="desc">Extend from tabular data to images. You'll visualise filter effects and pooling on real colour images, train an MLP baseline, build a CNN from scratch, implement LeNet-5, then beat all baselines with a custom CNN using BatchNorm and dropout.</p>
+              <div class="topics">
+                <span class="topic-tag">Conv2d &amp; padding</span>
+                <span class="topic-tag">MaxPool &amp; AvgPool</span>
+                <span class="topic-tag">RGB image classification</span>
+                <span class="topic-tag">MLP baseline</span>
+                <span class="topic-tag">LeNet-5</span>
+                <span class="topic-tag">BatchNorm2d</span>
+                <span class="topic-tag">Capstone: image CNN</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="examples-section">
+        <p class="section-title">What you'll build</p>
+        <div class="examples-grid">
+          <div class="example-chip">
+            <p class="chip-label">Module 01</p>
+            <p class="chip-name">Polynomial Fitter</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 01</p>
+            <p class="chip-name">Linear Fitter from Scratch</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 02</p>
+            <p class="chip-name">Tabular Classifier</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 02</p>
+            <p class="chip-name">Regression Model</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 02</p>
+            <p class="chip-name">Loss Function Comparison</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 03</p>
+            <p class="chip-name">Data Pipeline</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 03</p>
+            <p class="chip-name">Regularised Classifier</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 04</p>
+            <p class="chip-name">LeNet-5</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Module 04</p>
+            <p class="chip-name">Custom Image CNN</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> How PyTorch tensors work - shapes, dtypes, slicing, matmul, and broadcasting</div>
+          <div class="learn-item"><span class="check">✓</span> How autograd builds a computation graph and why .backward() works</div>
+          <div class="learn-item"><span class="check">✓</span> How to write a complete PyTorch training loop without any high-level wrapper</div>
+          <div class="learn-item"><span class="check">✓</span> When to use BCELoss vs CrossEntropyLoss vs MSELoss - and why it matters</div>
+          <div class="learn-item"><span class="check">✓</span> How to build a proper data pipeline with Dataset and DataLoader</div>
+          <div class="learn-item"><span class="check">✓</span> Why dropout and LR scheduling improve generalisation, and how to tune them</div>
+          <div class="learn-item"><span class="check">✓</span> How convolutional filters, pooling, and BatchNorm work together in an image classifier</div>
+          <div class="learn-item"><span class="check">✓</span> How to checkpoint training and resume from any saved epoch</div>
+        </div>
+      </div>
+
+      <div class="cohort-section">
+        <div class="cohort-header">
+          <span class="cohort-title">June Cohort</span>
+          <span class="cohort-tag">Weekend · Live Course</span>
+        </div>
+        <p class="cohort-summary">Two weekends in June &nbsp;·&nbsp; 3:00 – 6:00 PM IST</p>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <span class="schedule-num">1</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">20</div></div>
+            <span class="schedule-date">Friday, 20 June</span>
+            <span class="schedule-time">3:00 – 6:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">2</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">21</div></div>
+            <span class="schedule-date">Saturday, 21 June</span>
+            <span class="schedule-time">3:00 – 6:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">3</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">27</div></div>
+            <span class="schedule-date">Friday, 27 June</span>
+            <span class="schedule-time">3:00 – 6:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">4</span>
+            <div class="schedule-cal"><div class="cal-month">Jun</div><div class="cal-day">28</div></div>
+            <span class="schedule-date">Saturday, 28 June</span>
+            <span class="schedule-time">3:00 – 6:00 PM IST</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this course</p>
+        <div class="price-row">
+          <span class="discounted">₹30,000</span>
+        </div>
+        <a class="enroll-btn" href="https://rzp.io/rzp/PrhbGTja" target="_blank" rel="noopener">Enroll Now →</a>
+        <p class="guarantee">Live classes</p>
+        <p class="guarantee">Lifetime access to recordings</p>
+        <div class="discount-divider"></div>
+        <p class="discount-label" style="color: #111;">Existing student?</p>
+        <a class="discount-link" href="https://docs.google.com/forms/d/e/1FAIpQLSc2_ceP8SJCD5Lok57637KM_L0sNdY-eZ8O5Z5coBBJ28tsVw/viewform?usp=publish-editor" target="_blank" rel="noopener">Get a discount coupon →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>
