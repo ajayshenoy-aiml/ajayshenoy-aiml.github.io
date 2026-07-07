@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced AI Engineering — 3-Month Live Cohort - Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.35);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discount-divider {
+      margin: 20px 0 16px;
+      border-top: 1px solid #e8eef8;
+    }
+    .discount-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .discount-link {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .discount-link:hover { text-decoration: underline; }
+
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+    }
+
+    .stack-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .stack-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .stack-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .stack-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; }
+    .modules .track-note {
+      font-size: 0.88rem;
+      color: #666;
+      margin: -8px 0 20px;
+      line-height: 1.65;
+    }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 56px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .cohort-section { padding: 0 0 20px; }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title { font-size: 1rem; font-weight: 700; color: #111; }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary { font-size: 0.88rem; color: #666; margin-bottom: 20px; }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .schedule-num { font-size: 0.72rem; color: #bbb; font-weight: 500; min-width: 16px; }
+    .schedule-date { font-size: 0.88rem; font-weight: 600; color: #111; min-width: 160px; }
+    .schedule-time { font-size: 0.75rem; color: #2563eb; }
+    .schedule-desc { font-size: 0.82rem; color: #888; }
+
+    /* Start / End bookends */
+    .bookends {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+    .bookend {
+      border: 1.5px solid #e0e8ff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      background: #f8faff;
+    }
+    .bookend.end { border-color: #e2e8f0; background: #fafafa; }
+    .bookend .be-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2563eb;
+      margin-bottom: 6px;
+    }
+    .bookend.end .be-label { color: #94a3b8; }
+    .bookend .be-date {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .bookend .be-day { font-size: 0.8rem; color: #888; margin-top: 4px; }
+    .bookend-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Phase timeline */
+    .phase-list {
+      display: flex;
+      flex-direction: column;
+      border-left: 2px solid #e0e8ff;
+      margin-left: 6px;
+      padding-left: 0;
+    }
+    .phase-item {
+      position: relative;
+      padding: 0 0 22px 26px;
+    }
+    .phase-item:last-child { padding-bottom: 0; }
+    .phase-item::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 3px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #2563eb;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px #e0e8ff;
+    }
+    .phase-item .ph-dates {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #2563eb;
+      margin-bottom: 3px;
+    }
+    .phase-item .ph-title { font-size: 0.95rem; font-weight: 700; color: #111; margin-bottom: 2px; }
+    .phase-item .ph-desc { font-size: 0.82rem; color: #888; line-height: 1.5; }
+
+    .rhythm-note {
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: #555;
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      line-height: 1.6;
+    }
+    .rhythm-note strong { color: #111; }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+      .bookends { grid-template-columns: 1fr; }
+      .bookend-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Advanced AI Engineering</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Starts 25 July · 3-Month Live Cohort · GPU Provided</span>
+        <h1>Advanced AI Engineering</h1>
+        <p class="sub">Go from <span style="color:#dc2626;text-decoration:underline;text-decoration-color:#dc2626;">"I build LLM apps"</span> to architecting and optimizing them for a hundred thousand concurrent users.</p>
+        <p class="detail">No fluff. Real GPUs. Real code. You'll build a multimodal RAG on stock code, load-test it until it breaks, then rebuild it into a production system with quantization, FlashAttention, PagedAttention, custom kernels you wrote, and a Kubernetes architecture designed for 1L+ users — cutting cost per token by 90%. The course runs as two parallel tracks in one cohort: a Saturday track everyone takes, plus an optional Sunday deep-dive for those who want to go a level deeper — same cohort, all materials included, no extra fee.</p>
+      </div>
+
+      <div class="stack-section">
+        <p class="section-title">What you'll master</p>
+        <div class="stack-grid">
+          <div class="stack-chip">
+            <p class="chip-label">Quantization</p>
+            <p class="chip-name">GPTQ · AWQ · FP8 / INT4</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Attention</p>
+            <p class="chip-name">FlashAttention · Paged</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Serving Engines</p>
+            <p class="chip-name">vLLM · SGLang · TensorRT</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Kernels</p>
+            <p class="chip-name">Triton · CUDA graphs</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Decoding</p>
+            <p class="chip-name">Speculative · Batching</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Embeddings</p>
+            <p class="chip-name">Contrastive finetuning</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Orchestration</p>
+            <p class="chip-name">Kubernetes (EKS)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Cloud</p>
+            <p class="chip-name">AWS · Docker for GPUs</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Observability</p>
+            <p class="chip-name">p95/p99 · GPU dashboards</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> Ship a real multimodal RAG, deploy it to AWS, and load-test it until it breaks</div>
+          <div class="learn-item"><span class="check">✓</span> Read every benchmark number through GPU and transformer internals</div>
+          <div class="learn-item"><span class="check">✓</span> Cut cost per token 10×+ with quantization, FlashAttention, and PagedAttention</div>
+          <div class="learn-item"><span class="check">✓</span> Serve on real engines — vLLM, SGLang, TensorRT-LLM — and write kernels underneath</div>
+          <div class="learn-item"><span class="check">✓</span> Add speculative decoding, continuous batching, and prefix caching</div>
+          <div class="learn-item"><span class="check">✓</span> Serve multimodal, embedding, MoE and reranker models; finetune your own embeddings</div>
+          <div class="learn-item"><span class="check">✓</span> Architect for a lakh concurrent users on Kubernetes with autoscaling and SLOs</div>
+          <div class="learn-item"><span class="check">✓</span> Prerequisites (ANN/CNN/RNN, backprop, self-attention) covered free before day one</div>
+        </div>
+      </div>
+
+      <div class="modules">
+        <p class="section-title">Saturday track — the core course everyone takes</p>
+        <p class="track-note">The general, heavily practical course. Each month builds on the last: by the end you've optimized every layer — the model, the kernels, the engine, the cluster, the cloud.</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">Wk 1–2</span>
+            <div>
+              <h3>Foundations — build it &amp; measure it</h3>
+              <p class="desc">Ship a real multimodal RAG on stock code, deploy it, and load-test it until it breaks — then learn the GPU and transformer fundamentals that explain every number in your benchmark.</p>
+              <div class="topics">
+                <span class="topic-tag">Multimodal RAG</span>
+                <span class="topic-tag">Qwen3.6-27B</span>
+                <span class="topic-tag">Hugging Face Transformers</span>
+                <span class="topic-tag">Deploy to AWS</span>
+                <span class="topic-tag">GPU architecture &amp; HBM</span>
+                <span class="topic-tag">Roofline model</span>
+                <span class="topic-tag">Prefill vs Decode</span>
+                <span class="topic-tag">KV cache math</span>
+                <span class="topic-tag">TTFT &amp; TPOT</span>
+                <span class="topic-tag">Profiling (nsys / ncu)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">Wk 3–8</span>
+            <div>
+              <h3>Vertical wins — make it 10× faster</h3>
+              <p class="desc">Where most of your 10× cost reduction comes from. Shrink the model, speed up attention, serve it on a real engine, write the kernels underneath yourself — then prove the quality held.</p>
+              <div class="topics">
+                <span class="topic-tag">Quantization (GPTQ · AWQ)</span>
+                <span class="topic-tag">FP8 / INT4 / INT8</span>
+                <span class="topic-tag">FlashAttention</span>
+                <span class="topic-tag">PagedAttention</span>
+                <span class="topic-tag">GQA / MQA / MLA</span>
+                <span class="topic-tag">RoPE · ALiBi · YaRN</span>
+                <span class="topic-tag">Continuous batching</span>
+                <span class="topic-tag">vLLM &amp; SGLang</span>
+                <span class="topic-tag">TensorRT-LLM</span>
+                <span class="topic-tag">Speculative decoding</span>
+                <span class="topic-tag">Prefix &amp; chunked prefill</span>
+                <span class="topic-tag">Write Triton kernels</span>
+                <span class="topic-tag">torch.compile · CUDA graphs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">Wk 9–12</span>
+            <div>
+              <h3>Modalities &amp; scale — ship for 1L+ users</h3>
+              <p class="desc">Apply the toolkit to multimodal, embedding and MoE models, finetune your own embeddings, then architect, ship and observe the whole thing for a lakh concurrent users on AWS.</p>
+              <div class="topics">
+                <span class="topic-tag">Multimodal serving</span>
+                <span class="topic-tag">Embedding &amp; reranker models</span>
+                <span class="topic-tag">Mixture of Experts (MoE)</span>
+                <span class="topic-tag">Contrastive finetuning</span>
+                <span class="topic-tag">Matryoshka embeddings</span>
+                <span class="topic-tag">Prefill/decode disaggregation</span>
+                <span class="topic-tag">Multi-LoRA serving</span>
+                <span class="topic-tag">Docker for GPUs</span>
+                <span class="topic-tag">Kubernetes (EKS)</span>
+                <span class="topic-tag">Autoscaling (HPA / KEDA)</span>
+                <span class="topic-tag">p95 / p99 SLOs</span>
+                <span class="topic-tag">$/Mtok &amp; capacity math</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modules">
+        <p class="section-title">Sunday track — optional deep-dive</p>
+        <p class="track-note">An optional Sunday stream for candidates who want to go a level deeper than the general material — from writing hardware code by hand to building your own inference engine and finetuning your own models. Every student receives the full book and all code files regardless of track; Sunday is for those who want to build it all themselves.</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>Your own mini CUDA stack</h3>
+              <p class="desc">Build forward and backward prop for a plain ANN from scratch, plus an intro to tinygrad — a solid starting point for writing hardware code.</p>
+              <div class="topics">
+                <span class="topic-tag">Autograd from scratch</span>
+                <span class="topic-tag">Forward/backward prop</span>
+                <span class="topic-tag">tinygrad</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>Llama, from scratch</h3>
+              <p class="desc">Study the Llama architecture in detail and implement it end to end in pure PyTorch.</p>
+              <div class="topics">
+                <span class="topic-tag">Llama architecture</span>
+                <span class="topic-tag">Pure PyTorch</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Build your own vLLM</h3>
+              <p class="desc">Optimize your Llama step by step into your own inference engine — PagedAttention, KV caching, KV quantization, FlashAttention and more. As far as we can go.</p>
+              <div class="topics">
+                <span class="topic-tag">PagedAttention</span>
+                <span class="topic-tag">KV caching</span>
+                <span class="topic-tag">KV quantization</span>
+                <span class="topic-tag">FlashAttention</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>Modern architectures (theory)</h3>
+              <p class="desc">MoE, SSMs, Mamba and modern attention mechanisms — and the optimization techniques behind each.</p>
+              <div class="topics">
+                <span class="topic-tag">Mixture of Experts</span>
+                <span class="topic-tag">SSMs · Mamba</span>
+                <span class="topic-tag">Modern attention</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">05</span>
+            <div>
+              <h3>Speech: TTS &amp; STT</h3>
+              <p class="desc">Architectures of text-to-speech and speech-to-text models, and their full optimization stack.</p>
+              <div class="topics">
+                <span class="topic-tag">TTS architectures</span>
+                <span class="topic-tag">STT architectures</span>
+                <span class="topic-tag">Optimization stack</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">06</span>
+            <div>
+              <h3>Modern finetuning</h3>
+              <p class="desc">SFT with LoRA and QLoRA, finetuning MoE models, GRPO and other modern finetuning techniques.</p>
+              <div class="topics">
+                <span class="topic-tag">LoRA / QLoRA</span>
+                <span class="topic-tag">SFT</span>
+                <span class="topic-tag">MoE finetuning</span>
+                <span class="topic-tag">GRPO</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">07</span>
+            <div>
+              <h3>DIY capstone</h3>
+              <p class="desc">Finetune your own LLM and ship a full audio app that wires STT → LLM → TTS together end to end.</p>
+              <div class="topics">
+                <span class="topic-tag">Finetune your own LLM</span>
+                <span class="topic-tag">Full audio app</span>
+                <span class="topic-tag">STT → LLM → TTS</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="cohort-section">
+        <p class="section-title">Schedule <span class="cohort-tag">3 Months · Live</span></p>
+
+        <div class="bookends">
+          <div class="bookend start">
+            <p class="be-label">Cohort begins</p>
+            <p class="be-date">Sat, 25 July</p>
+            <p class="be-day">2026 · first live session</p>
+          </div>
+          <div class="bookend-arrow">→</div>
+          <div class="bookend end">
+            <p class="be-label">Wraps up</p>
+            <p class="be-date">Sat, 10 Oct</p>
+            <p class="be-day">2026 · after 12 weeks</p>
+          </div>
+        </div>
+
+        <div class="phase-list">
+          <div class="phase-item">
+            <p class="ph-dates">25 Jul – 1 Aug · Weeks 1–2</p>
+            <p class="ph-title">Foundations</p>
+            <p class="ph-desc">Build the naive multimodal RAG, deploy it, break it, and learn why it's slow.</p>
+          </div>
+          <div class="phase-item">
+            <p class="ph-dates">8 Aug – 19 Sep · Weeks 3–8</p>
+            <p class="ph-title">Vertical wins</p>
+            <p class="ph-desc">Quantization, attention, serving engines and custom kernels — your 10× cost cut.</p>
+          </div>
+          <div class="phase-item">
+            <p class="ph-dates">26 Sep – 10 Oct · Weeks 9–12</p>
+            <p class="ph-title">Modalities &amp; scale</p>
+            <p class="ph-desc">Multimodal, embeddings, MoE — then architect and ship for 1L+ users on AWS.</p>
+          </div>
+        </div>
+
+        <p class="rhythm-note">
+          <strong>Weekly rhythm:</strong> every <strong>Saturday</strong> is the general track everyone takes.
+          Every <strong>Sunday</strong> is the optional deep-dive. Both are 3-hour live sessions, and a GPU is
+          provided throughout.
+        </p>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this cohort</p>
+        <div class="price-row">
+          <span class="original">₹80,000</span>
+          <span class="discounted">₹50,000</span>
+        </div>
+        <p class="savings" style="color:#dc2626;">8 discount coupons left</p>
+        <a class="enroll-btn" href="https://pages.razorpay.com/pl_T9glnXy9NDQf1r/view" target="_blank" rel="noopener">Enroll Now →</a>
+        <p class="guarantee">Live classes · GPU provided</p>
+        <p class="guarantee">Lifetime access to recordings</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>
