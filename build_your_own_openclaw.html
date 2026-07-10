@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build Your Own OpenClaw - Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.35);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discount-divider {
+      margin: 20px 0 16px;
+      border-top: 1px solid #e8eef8;
+    }
+    .discount-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .discount-link {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .discount-link:hover { text-decoration: underline; }
+
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+    }
+
+    /* ── Architecture diagram (style borrowed from system_architecture.html) ── */
+    .arch-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .arch-caption {
+      font-size: 0.88rem;
+      color: #666;
+      line-height: 1.65;
+      margin-bottom: 18px;
+    }
+    .arch-canvas {
+      width: 100%;
+      overflow-x: auto;
+    }
+    svg#arch-svg {
+      width: 100%;
+      min-width: 720px;
+      height: auto;
+      display: block;
+    }
+    #arch-svg .block rect { transition: filter 0.2s; }
+    #arch-svg .block:hover rect { filter: brightness(0.97); }
+
+    .stack-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .stack-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .stack-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .stack-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    .audience-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .audience-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .audience-item {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.55;
+      padding: 10px 0;
+      border-bottom: 1px solid #f6f6f6;
+    }
+    .audience-item:last-child { border-bottom: none; }
+    .audience-item .who {
+      font-weight: 700;
+      color: #111;
+      min-width: 160px;
+      flex-shrink: 0;
+    }
+
+    .prereq-note {
+      font-size: 0.85rem;
+      color: #555;
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+    .prereq-note strong { color: #1e3a6e; }
+
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; border-bottom: 1px solid #f0f0f0; }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .exit {
+      font-size: 0.8rem;
+      color: #2563eb;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    .concept-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+    .concept-table th {
+      text-align: left;
+      color: #aaa;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      padding: 6px 10px 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .concept-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid #f4f4f5;
+      color: #444;
+      vertical-align: top;
+    }
+    .concept-table td:first-child { font-weight: 600; color: #111; white-space: nowrap; }
+
+    .compare-section { padding: 24px 0; border-bottom: 1px solid #f0f0f0; }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .compare-table th {
+      text-align: left;
+      color: #aaa;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      padding: 8px 12px 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .compare-table td {
+      padding: 10px 12px 10px 0;
+      border-bottom: 1px solid #f4f4f5;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .cohort-section { padding: 24px 0 20px; }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title { font-size: 1rem; font-weight: 700; color: #111; }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary { font-size: 0.88rem; color: #666; margin-bottom: 20px; }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-week {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-week .week-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .schedule-week .week-num {
+      flex-shrink: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .schedule-week .week-cals {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .cal-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .cal-row .cal-time {
+      font-size: 0.75rem;
+      color: #2563eb;
+      white-space: nowrap;
+    }
+    .schedule-week .week-title {
+      flex: 1;
+      min-width: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+      .compare-table, .concept-table { display: block; overflow-x: auto; }
+      .audience-item { flex-direction: column; gap: 2px; }
+      .audience-item .who { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Build Your Own OpenClaw</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Live Workshop · 4 Weeks</span>
+        <h1>Build Your Own OpenClaw</h1>
+        <p class="sub">Build a personal AI agent from scratch over <span style="color:#dc2626;text-decoration:underline;text-decoration-color:#dc2626;">four weeks</span> — two live sessions a week, Tuesdays and Thursdays.</p>
+        <p class="detail">By the end of four weeks, you'll have a running personal AI agent: it answers messages, remembers facts about you across conversations, executes bash commands and web searches inside an isolated Docker container, and receives messages over CLI, Telegram, and WhatsApp. Every layer — the message bus, the container runtime, the memory system, the channel adapters — is code you wrote. Along the way you'll go deep on the four pillars that make an agent production-shaped: databases as IPC, agent loops, memory &amp; context engineering, and security &amp; token cost management.</p>
+      </div>
+
+      <div class="arch-section">
+        <p class="section-title">System Architecture</p>
+        <p class="arch-caption">Four zones, one data path. A message enters through a channel, the host router writes it into that session's <code>inbound.db</code>, the container's poll loop picks it up and hands it to the Claude Agent SDK, and the reply goes back out through <code>outbound.db</code> to the delivery poller. No sockets between host and container — just two SQLite files and a 500 ms poll.</p>
+        <div class="arch-canvas">
+          <svg id="arch-svg" viewBox="0 0 1060 560" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="oc-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#444c56"/>
+              </marker>
+            </defs>
+
+            <!-- ── Zone: Channels ── -->
+            <rect x="16" y="20" width="180" height="330" rx="12"
+                  fill="#fafafa" stroke="#d0d7de" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="30" y="40" fill="#8c959f" font-size="9" font-family="monospace" font-weight="700" letter-spacing="1">CHANNELS</text>
+
+            <g class="block">
+              <rect x="34" y="58" width="144" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="34" y="58" width="144" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="34" y="69" width="144" height="9" fill="#f0f2f5"/>
+              <text x="106" y="73" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">CLI</text>
+              <text x="106" y="93" text-anchor="middle" fill="#6d28d9" font-size="10" font-family="monospace" font-weight="600">pnpm chat</text>
+              <text x="106" y="107" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">W4 · Unix socket</text>
+            </g>
+
+            <g class="block">
+              <rect x="34" y="134" width="144" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="34" y="134" width="144" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="34" y="145" width="144" height="9" fill="#f0f2f5"/>
+              <text x="106" y="149" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">TELEGRAM</text>
+              <text x="106" y="169" text-anchor="middle" fill="#6d28d9" font-size="10" font-family="monospace" font-weight="600">Bot API</text>
+              <text x="106" y="183" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">W4 · long-polling</text>
+            </g>
+
+            <g class="block">
+              <rect x="34" y="210" width="144" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="34" y="210" width="144" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="34" y="221" width="144" height="9" fill="#f0f2f5"/>
+              <text x="106" y="225" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">WHATSAPP</text>
+              <text x="106" y="245" text-anchor="middle" fill="#6d28d9" font-size="10" font-family="monospace" font-weight="600">Baileys</text>
+              <text x="106" y="259" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">W4 · adapter</text>
+            </g>
+
+            <text x="106" y="300" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace">InboundEvent →</text>
+            <text x="106" y="316" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace">← delivered reply</text>
+
+            <!-- ── Zone: Host ── -->
+            <rect x="222" y="20" width="212" height="330" rx="12"
+                  fill="#fafafa" stroke="#d0d7de" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="236" y="40" fill="#8c959f" font-size="9" font-family="monospace" font-weight="700" letter-spacing="1">HOST PROCESS · NODE 22</text>
+
+            <g class="block">
+              <rect x="240" y="58" width="176" height="52" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="240" y="58" width="176" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="240" y="69" width="176" height="9" fill="#f0f2f5"/>
+              <text x="328" y="73" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">ROUTER</text>
+              <text x="328" y="93" text-anchor="middle" fill="#1d4ed8" font-size="10" font-family="monospace" font-weight="600">message → session</text>
+              <text x="328" y="104" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">W1</text>
+            </g>
+
+            <g class="block">
+              <rect x="240" y="124" width="176" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="240" y="124" width="176" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="240" y="135" width="176" height="9" fill="#f0f2f5"/>
+              <text x="328" y="139" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">central.db</text>
+              <text x="328" y="159" text-anchor="middle" fill="#1d4ed8" font-size="10" font-family="monospace" font-weight="600">agent_groups · sessions</text>
+              <text x="328" y="173" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">W1 · SQLite</text>
+            </g>
+
+            <g class="block">
+              <rect x="240" y="200" width="176" height="52" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="240" y="200" width="176" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="240" y="211" width="176" height="9" fill="#f0f2f5"/>
+              <text x="328" y="215" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">DELIVERY POLLER</text>
+              <text x="328" y="235" text-anchor="middle" fill="#1d4ed8" font-size="10" font-family="monospace" font-weight="600">reads outbound → channel</text>
+              <text x="328" y="246" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">W1</text>
+            </g>
+
+            <g class="block">
+              <rect x="240" y="266" width="176" height="52" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="240" y="266" width="176" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="240" y="277" width="176" height="9" fill="#f0f2f5"/>
+              <text x="328" y="281" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">SCHEDULER</text>
+              <text x="328" y="301" text-anchor="middle" fill="#6d28d9" font-size="10" font-family="monospace" font-weight="600">60s tick · due rows</text>
+              <text x="328" y="312" text-anchor="middle" fill="#a78bfa" font-size="8" font-family="monospace">W4</text>
+            </g>
+
+            <!-- ── Zone: Per-session SQLite ── -->
+            <rect x="460" y="20" width="172" height="330" rx="12"
+                  fill="#fafafa" stroke="#d0d7de" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="474" y="40" fill="#8c959f" font-size="9" font-family="monospace" font-weight="700" letter-spacing="1">PER-SESSION · SQLITE</text>
+
+            <g class="block">
+              <rect x="478" y="82" width="136" height="72" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="478" y="82" width="136" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="478" y="93" width="136" height="9" fill="#f0f2f5"/>
+              <text x="546" y="97" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">inbound.db</text>
+              <text x="546" y="117" text-anchor="middle" fill="#1d4ed8" font-size="10" font-family="monospace" font-weight="600">host writes</text>
+              <text x="546" y="131" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">even seq · W1</text>
+              <text x="546" y="145" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">journal_mode = DELETE</text>
+            </g>
+
+            <g class="block">
+              <rect x="478" y="212" width="136" height="72" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="478" y="212" width="136" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="478" y="223" width="136" height="9" fill="#f0f2f5"/>
+              <text x="546" y="227" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">outbound.db</text>
+              <text x="546" y="247" text-anchor="middle" fill="#1d4ed8" font-size="10" font-family="monospace" font-weight="600">container writes</text>
+              <text x="546" y="261" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">odd seq · W1</text>
+              <text x="546" y="275" text-anchor="middle" fill="#93c5fd" font-size="8" font-family="monospace">lock-free, no IPC</text>
+            </g>
+
+            <!-- ── Zone: Container ── -->
+            <rect x="658" y="20" width="386" height="330" rx="12"
+                  fill="#fafafa" stroke="#d0d7de" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="672" y="40" fill="#8c959f" font-size="9" font-family="monospace" font-weight="700" letter-spacing="1">DOCKER CONTAINER · BUN · tini AS PID 1</text>
+
+            <g class="block">
+              <rect x="676" y="58" width="164" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="676" y="58" width="164" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="676" y="69" width="164" height="9" fill="#f0f2f5"/>
+              <text x="758" y="73" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">POLL LOOP</text>
+              <text x="758" y="93" text-anchor="middle" fill="#b45309" font-size="10" font-family="monospace" font-weight="600">every 500 ms</text>
+              <text x="758" y="107" text-anchor="middle" fill="#fbbf24" font-size="8" font-family="monospace">W2 · reads inbound</text>
+            </g>
+
+            <g class="block">
+              <rect x="862" y="58" width="164" height="62" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="862" y="58" width="164" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="862" y="69" width="164" height="9" fill="#f0f2f5"/>
+              <text x="944" y="73" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">CLAUDE AGENT SDK</text>
+              <text x="944" y="93" text-anchor="middle" fill="#b45309" font-size="10" font-family="monospace" font-weight="600">query() · tool use</text>
+              <text x="944" y="107" text-anchor="middle" fill="#fbbf24" font-size="8" font-family="monospace">W2 · Bash · WebSearch</text>
+            </g>
+
+            <g class="block">
+              <rect x="862" y="152" width="164" height="86" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="862" y="152" width="164" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="862" y="163" width="164" height="9" fill="#f0f2f5"/>
+              <text x="944" y="167" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">MCP SERVER</text>
+              <text x="944" y="187" text-anchor="middle" fill="#047857" font-size="10" font-family="monospace" font-weight="600">write_memory</text>
+              <text x="944" y="201" text-anchor="middle" fill="#047857" font-size="10" font-family="monospace" font-weight="600">send_message</text>
+              <text x="944" y="215" text-anchor="middle" fill="#6d28d9" font-size="10" font-family="monospace" font-weight="600">schedule_task</text>
+              <text x="944" y="229" text-anchor="middle" fill="#6ee7b7" font-size="8" font-family="monospace">W3 · W3 · W4</text>
+            </g>
+
+            <g class="block">
+              <rect x="676" y="152" width="164" height="86" rx="8" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1.5"/>
+              <rect x="676" y="152" width="164" height="20" rx="8" fill="#f0f2f5"/>
+              <rect x="676" y="163" width="164" height="9" fill="#f0f2f5"/>
+              <text x="758" y="167" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">CLAUDE.md</text>
+              <text x="758" y="187" text-anchor="middle" fill="#047857" font-size="10" font-family="monospace" font-weight="600">personality + memory</text>
+              <text x="758" y="203" text-anchor="middle" fill="#6ee7b7" font-size="8" font-family="monospace">W3 · @-import composition</text>
+              <text x="758" y="217" text-anchor="middle" fill="#6ee7b7" font-size="8" font-family="monospace">agent appends its own facts</text>
+              <text x="758" y="231" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace">→ system prompt</text>
+            </g>
+
+            <text x="851" y="272" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace">API key passed via stdin — never in docker inspect</text>
+            <text x="851" y="290" text-anchor="middle" fill="#8c959f" font-size="8" font-family="monospace">source bind-mounted · session resumes from .jsonl</text>
+
+            <!-- ── Connections ── -->
+            <!-- Channels → Router -->
+            <path d="M 178 89 L 210 89 L 210 84 L 236 84" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <path d="M 178 165 L 210 165 L 210 90 L 236 90" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <path d="M 178 241 L 210 241 L 210 96 L 236 96" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+
+            <!-- Router → central.db -->
+            <line x1="328" y1="110" x2="328" y2="120" stroke="#444c56" stroke-width="1.5" marker-end="url(#oc-arr)"/>
+            <!-- Router → inbound.db -->
+            <path d="M 416 84 L 446 84 L 446 112 L 474 112" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="424" y="78" fill="#8c959f" font-size="8" font-family="monospace">write</text>
+
+            <!-- Scheduler → inbound.db -->
+            <path d="M 416 292 L 440 292 L 440 140 L 474 140" stroke="#444c56" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="424" y="286" fill="#8c959f" font-size="8" font-family="monospace">due rows</text>
+
+            <!-- outbound.db → Delivery Poller -->
+            <path d="M 478 248 L 452 248 L 452 226 L 420 226" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="432" y="242" fill="#8c959f" font-size="8" font-family="monospace">read</text>
+
+            <!-- Delivery Poller → Channels -->
+            <path d="M 240 240 L 204 240 L 204 118 L 178 108" stroke="#444c56" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="188" y="256" fill="#8c959f" font-size="8" font-family="monospace">deliver</text>
+
+            <!-- inbound.db → Poll Loop -->
+            <path d="M 614 112 L 646 112 L 646 84 L 672 84" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="618" y="106" fill="#8c959f" font-size="8" font-family="monospace">poll 500ms</text>
+
+            <!-- Poll Loop → SDK -->
+            <line x1="840" y1="89" x2="858" y2="89" stroke="#444c56" stroke-width="1.5" marker-end="url(#oc-arr)"/>
+
+            <!-- SDK → MCP -->
+            <line x1="944" y1="120" x2="944" y2="148" stroke="#444c56" stroke-width="1.5" marker-end="url(#oc-arr)"/>
+            <text x="950" y="138" fill="#8c959f" font-size="8" font-family="monospace">tool calls</text>
+
+            <!-- CLAUDE.md → SDK -->
+            <path d="M 840 176 L 852 176 L 852 100 L 862 100" stroke="#444c56" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#oc-arr)"/>
+
+            <!-- Poll Loop → outbound.db -->
+            <path d="M 676 100 L 640 100 L 640 248 L 618 248" stroke="#444c56" stroke-width="1.5" fill="none" marker-end="url(#oc-arr)"/>
+            <text x="626" y="264" fill="#8c959f" font-size="8" font-family="monospace">reply</text>
+
+            <!-- ── Week legend ── -->
+            <rect x="16" y="378" width="1028" height="72" rx="8" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+            <text x="32" y="398" fill="#8c959f" font-size="8" font-family="monospace" font-weight="700" letter-spacing="1">WEEK LEGEND — every block is something you build</text>
+            <rect x="32" y="410" width="10" height="10" rx="2" fill="#1d4ed8"/>
+            <text x="49" y="419" fill="#0d1117" font-size="9" font-family="monospace">W1 — Message Bus &amp; DBMS Foundations</text>
+            <rect x="292" y="410" width="10" height="10" rx="2" fill="#b45309"/>
+            <text x="309" y="419" fill="#0d1117" font-size="9" font-family="monospace">W2 — Agent Container &amp; Agent Loops</text>
+            <rect x="552" y="410" width="10" height="10" rx="2" fill="#047857"/>
+            <text x="569" y="419" fill="#0d1117" font-size="9" font-family="monospace">W3 — Memory &amp; Context Engineering</text>
+            <rect x="812" y="410" width="10" height="10" rx="2" fill="#6d28d9"/>
+            <text x="829" y="419" fill="#0d1117" font-size="9" font-family="monospace">W4 — Connections &amp; Security</text>
+            <text x="32" y="438" fill="#8c959f" font-size="8" font-family="monospace">Solid arrow = data write/read · dashed arrow = scheduled or ambient flow (system prompt, delivery, timer wake)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stack-section">
+        <p class="section-title">Tech Stack</p>
+        <div class="stack-grid">
+          <div class="stack-chip">
+            <p class="chip-label">Language</p>
+            <p class="chip-name">TypeScript</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Runtime</p>
+            <p class="chip-name">Node 22 / Bun</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Isolation</p>
+            <p class="chip-name">Docker</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Storage / IPC</p>
+            <p class="chip-name">SQLite (better-sqlite3 / bun:sqlite)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Agent Runtime</p>
+            <p class="chip-name">Claude Agent SDK</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Tool Protocol</p>
+            <p class="chip-name">MCP</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Messaging</p>
+            <p class="chip-name">Telegram Bot API</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Messaging</p>
+            <p class="chip-name">WhatsApp (Baileys)</p>
+          </div>
+          <div class="stack-chip">
+            <p class="chip-label">Package Manager</p>
+            <p class="chip-name">pnpm</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="audience-section">
+        <p class="section-title">Who This Is For</p>
+        <div class="audience-grid">
+          <div class="audience-item"><span class="who">Software Engineers</span><span>Build a production-shaped async message bus; understand SQLite as IPC</span></div>
+          <div class="audience-item"><span class="who">ML Engineers</span><span>See how Claude Agent SDK sessions, tool use, and context compaction work under the hood</span></div>
+          <div class="audience-item"><span class="who">Product Managers</span><span>Understand the architecture behind personal AI agents — enough to spec and challenge designs</span></div>
+          <div class="audience-item"><span class="who">Engineering Managers</span><span>Grasp the tradeoffs: container isolation, polling vs. push, memory persistence</span></div>
+        </div>
+        <p class="prereq-note"><strong>Prerequisites (self-paced, ~1 hr, before Week 1):</strong> Docker, Node 22, Bun, pnpm installed; Anthropic API key ready; repo scaffolded; smoke test green. Checklist provided.</p>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> Design SQLite as an IPC layer — schemas, sequencing, and lock-free concurrent writes</div>
+          <div class="learn-item"><span class="check">✓</span> Build and run the core agent loop that drives tool use, from Bash to web search</div>
+          <div class="learn-item"><span class="check">✓</span> Give an agent a personality and memory that outlasts a single session</div>
+          <div class="learn-item"><span class="check">✓</span> Engineer context: composition, compaction, and what actually belongs in a prompt</div>
+          <div class="learn-item"><span class="check">✓</span> Isolate agents with Docker and pass secrets so they never leak via inspect</div>
+          <div class="learn-item"><span class="check">✓</span> Manage token cost and budget an agent's usage across a long-running session</div>
+          <div class="learn-item"><span class="check">✓</span> Connect a running agent to CLI, Telegram, and WhatsApp, including scheduled reminders</div>
+          <div class="learn-item"><span class="check">✓</span> Map every piece you build to how the real, production OpenClaw does it</div>
+        </div>
+      </div>
+
+      <div class="modules">
+        <p class="section-title">Weeks</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>The Message Bus &amp; DBMS Foundations</h3>
+              <p class="exit">Exit artifact: Type a message → "Echo: &lt;your message&gt;" appears within 1 second.</p>
+              <p class="desc">No AI yet — just the wiring that makes everything else possible, plus the database theory behind it. Build the SQLite schema that lets the host and agent container communicate without any IPC: two databases per session (<code>inbound.db</code> owned by the host, <code>outbound.db</code> owned by the container), with an even/odd sequence number split that prevents write collisions. Build the router that maps an inbound message to the right session, and the delivery poller that watches outbound and surfaces replies. Prove it works with a mock echo agent. On top of the message bus, go deep on DBMS fundamentals — transactions, isolation levels, indexing, and why SQLite's single-writer model shapes this entire architecture.</p>
+              <div class="topics">
+                <span class="topic-tag">Two SQLite files per session</span>
+                <span class="topic-tag">Even/odd seq split</span>
+                <span class="topic-tag">journal_mode = DELETE</span>
+                <span class="topic-tag">Polling architecture</span>
+                <span class="topic-tag">Transactions &amp; isolation levels</span>
+                <span class="topic-tag">Indexing</span>
+                <span class="topic-tag">SQLite internals</span>
+              </div>
+              <table class="concept-table">
+                <tr><th>Concept</th><th>Why it matters</th></tr>
+                <tr><td>Two SQLite files per session</td><td>Clean process boundary — no shared memory, no IPC</td></tr>
+                <tr><td>Even/odd seq split</td><td>Lock-free concurrent writes across host ↔ container</td></tr>
+                <tr><td>journal_mode = DELETE</td><td>Docker Desktop file-system compatibility</td></tr>
+                <tr><td>Polling architecture</td><td>Simple, debuggable, no push infrastructure needed</td></tr>
+                <tr><td>DBMS fundamentals</td><td>Transactions and isolation levels explain why the even/odd split is even necessary</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>The Agent Container &amp; Agent Loops</h3>
+              <p class="exit">Exit artifact: Ask Claude a question in your terminal → real answer appears in 10–20 seconds.</p>
+              <p class="desc">Replace the mock with a real Dockerised Claude. Write a Dockerfile that installs Bun, <code>tini</code> (for clean SIGTERM propagation), and the Claude Agent SDK. Write the poll loop that runs inside the container: it watches <code>inbound.db</code>, calls Claude with full tool use (Bash, WebSearch, Read/Write files), and writes replies to <code>outbound.db</code>. Pass the API key via stdin — not env vars — so it never appears in <code>docker inspect</code>. Wire the host to spawn and track containers. This week also covers agent loops in depth: the plan → act → observe cycle, tool-call dispatch, and how the SDK decides when a turn is actually done.</p>
+              <div class="topics">
+                <span class="topic-tag">tini as PID 1</span>
+                <span class="topic-tag">Config via stdin</span>
+                <span class="topic-tag">Source as bind-mount</span>
+                <span class="topic-tag">Session resume via .jsonl</span>
+                <span class="topic-tag">Plan-act-observe loop</span>
+                <span class="topic-tag">Tool-call dispatch</span>
+                <span class="topic-tag">Turn termination</span>
+              </div>
+              <table class="concept-table">
+                <tr><th>Concept</th><th>Why it matters</th></tr>
+                <tr><td>tini as PID 1</td><td>Orphan tool-call processes reap cleanly; DB writes finalize on SIGTERM</td></tr>
+                <tr><td>Config via stdin</td><td>API keys never visible in docker inspect or process listings</td></tr>
+                <tr><td>Source as bind-mount</td><td>Edit agent code without rebuilding the image</td></tr>
+                <tr><td>Session resume via .jsonl</td><td>Container restarts pick up conversation history</td></tr>
+                <tr><td>Agent loop structure</td><td>Understanding plan-act-observe is what lets you debug a "stuck" agent</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Memory, Workspace &amp; Context Engineering</h3>
+              <p class="exit">Exit artifact: Tell the agent a preference → restart → it remembers without being reminded.</p>
+              <p class="desc">Give the agent a personality and a memory that outlasts sessions. Build a <code>CLAUDE.md</code> composition system: each agent group has a local personality file that <code>@</code>-imports a shared global file. Before spawning a container, compose and write the result into the session workspace — the Claude Agent SDK reads it automatically. Add a human-readable conversation log. Build an MCP server that runs inside the container and exposes two tools: <code>write_memory</code> (agent appends facts to its own <code>CLAUDE.md</code>) and <code>send_message</code> (agent delivers a message mid-turn, before the full response is ready). Go deeper into context engineering: what to keep in-context vs. externalize to memory, and how context compaction works as conversations grow long.</p>
+              <div class="topics">
+                <span class="topic-tag">CLAUDE.md as personality</span>
+                <span class="topic-tag">@-import composition</span>
+                <span class="topic-tag">MCP as the tool protocol</span>
+                <span class="topic-tag">write_memory</span>
+                <span class="topic-tag">Context compaction</span>
+                <span class="topic-tag">Context vs. memory tradeoffs</span>
+              </div>
+              <table class="concept-table">
+                <tr><th>Concept</th><th>Why it matters</th></tr>
+                <tr><td>CLAUDE.md as personality</td><td>Files beat databases for hackability and git-trackability</td></tr>
+                <tr><td>@-import composition</td><td>Global + local personality without duplication</td></tr>
+                <tr><td>MCP as the tool protocol</td><td>Extend Claude's tools without touching the agent loop</td></tr>
+                <tr><td>write_memory</td><td>Agent self-modification — the line between chatbot and personal agent</td></tr>
+                <tr><td>Context engineering</td><td>Deciding what lives in-context vs. in memory is the difference between a coherent agent and a confused one</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>Connections, Security &amp; Token Cost Management</h3>
+              <p class="exit">Exit artifact: Message your agent on Telegram or WhatsApp; say "remind me in 2 minutes to check email" → reminder arrives.</p>
+              <p class="desc">Make the agent reachable from anywhere, and capable of reaching you — and lock it down. Replace the readline CLI with a Unix-socket adapter so you can connect from a separate terminal (<code>pnpm chat</code>) without blocking the host process. Add a Telegram adapter (long-polling — no public URL needed) and a WhatsApp adapter (via Baileys) so your agent lives in your phone. Add a <code>schedule_task</code> MCP tool: scheduling is just a future DB row with a <code>process_after</code> timestamp — the same pipeline handles it. A 60-second host scheduler wakes the container when rows come due. This week closes with security — container isolation boundaries, secret handling, and what an agent should never be allowed to touch — and token cost management: budgeting, monitoring, and controlling spend on a long-running agent.</p>
+              <div class="topics">
+                <span class="topic-tag">Channel adapter interface</span>
+                <span class="topic-tag">Unix socket + chmod 0600</span>
+                <span class="topic-tag">Long-polling vs webhooks</span>
+                <span class="topic-tag">Scheduling as future DB rows</span>
+                <span class="topic-tag">Container isolation boundaries</span>
+                <span class="topic-tag">Secret handling</span>
+                <span class="topic-tag">Token budgeting &amp; cost monitoring</span>
+              </div>
+              <table class="concept-table">
+                <tr><th>Concept</th><th>Why it matters</th></tr>
+                <tr><td>Channel adapter interface</td><td>Platform-agnostic routing — swap channels without touching the core</td></tr>
+                <tr><td>Unix socket + chmod 0600</td><td>Local IPC with OS-level access control, no auth needed</td></tr>
+                <tr><td>Long-polling vs webhooks</td><td>Works behind NAT; no domain or TLS required for personal use</td></tr>
+                <tr><td>Scheduling as future DB rows</td><td>No separate scheduler process — same pipeline, future timestamps</td></tr>
+                <tr><td>Security boundaries</td><td>Docker isolation only helps if you know what it does and doesn't protect against</td></tr>
+                <tr><td>Token cost management</td><td>An agent left unmonitored can burn budget fast — you need visibility and limits</td></tr>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="compare-section">
+        <p class="section-title">How This Relates to the Real OpenClaw</p>
+        <p class="cohort-summary">This course builds <strong>nanoclaw</strong> — a deliberately lightweight reimplementation of <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener">OpenClaw</a>'s core idea: one personal AI agent you reach from any messaging app. The real OpenClaw is a ~500k-line system whose agents share a single Node process behind application-level permission checks. nanoclaw trades that for an architecture you can hold in your head — and a stronger security model: every agent runs in its own Docker container with OS-level isolation, not just a permission allowlist. You are not cloning OpenClaw's internals; you are rebuilding its <em>capabilities</em> the way you would actually want to run them on your own hardware. Each week ends with an "In real OpenClaw" note mapping what you built to its production counterpart.</p>
+        <table class="compare-table">
+          <tr><th>You build (nanoclaw)</th><th>Real OpenClaw</th></tr>
+          <tr><td>SQLite two-DB polling bus (inbound/outbound, even/odd seq)</td><td>WebSocket Gateway control plane (ws, TypeBox → JSON-Schema frames, idempotency keys) on 127.0.0.1:18789</td></tr>
+          <tr><td>Host spawns a Docker container per session</td><td>Single Gateway per host; Pi Agent Core (@mariozechner/pi-agent-core) runtime, Docker sandbox for untrusted sessions</td></tr>
+          <tr><td>Claude Agent SDK query()</td><td>Pi Agent Core's four-phase loop; multi-provider (Claude / GPT / Gemini / local)</td></tr>
+          <tr><td>CLAUDE.md (personality + memory in one file)</td><td>AGENTS.md + SOUL.md + TOOLS.md + skills/SKILL.md, with per-turn skill injection</td></tr>
+          <tr><td>write_memory appends to CLAUDE.md</td><td>Hybrid vector + BM25 memory in memory/&lt;agentId&gt;.sqlite, plus MEMORY.md and daily logs</td></tr>
+          <tr><td>Telegram via long-polling</td><td>Channel adapters: Baileys (WhatsApp), grammY (Telegram), discord.js, iMessage, Slack…</td></tr>
+          <tr><td>CLI over a Unix socket</td><td>Web UI (Lit), CLI (Commander.js), macOS app (Swift), mobile nodes — all with device pairing + token auth</td></tr>
+          <tr><td>schedule_task → future inbound row + 60s scheduler</td><td>Gateway-managed cron jobs and webhooks</td></tr>
+          <tr><td>send_message mid-turn</td><td>Session tools (sessions_*), A2UI Canvas, Voice / Talk mode</td></tr>
+        </table>
+      </div>
+
+      <div class="cohort-section">
+        <p class="section-title">Schedule <span class="cohort-tag">4 Weeks · Live · Tue &amp; Thu</span></p>
+        <p class="cohort-summary">9:00 – 10:00 PM IST · Tuesdays &amp; Thursdays · Jul 28 – Aug 20, 2026</p>
+        <div class="schedule-list">
+          <div class="schedule-week">
+            <div class="week-header">
+              <span class="week-num">Week 1:</span>
+              <div class="week-title">The Message Bus &amp; DBMS Foundations</div>
+            </div>
+            <div class="week-cals">
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Jul</div><div class="cal-day">28</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Jul</div><div class="cal-day">30</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+            </div>
+          </div>
+          <div class="schedule-week">
+            <div class="week-header">
+              <span class="week-num">Week 2:</span>
+              <div class="week-title">The Agent Container &amp; Agent Loops</div>
+            </div>
+            <div class="week-cals">
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">4</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">6</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+            </div>
+          </div>
+          <div class="schedule-week">
+            <div class="week-header">
+              <span class="week-num">Week 3:</span>
+              <div class="week-title">Memory, Workspace &amp; Context Engineering</div>
+            </div>
+            <div class="week-cals">
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">11</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">13</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+            </div>
+          </div>
+          <div class="schedule-week">
+            <div class="week-header">
+              <span class="week-num">Week 4:</span>
+              <div class="week-title">Connections, Security &amp; Token Cost Management</div>
+            </div>
+            <div class="week-cals">
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">18</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+              <div class="cal-row"><div class="schedule-cal"><div class="cal-month">Aug</div><div class="cal-day">20</div></div><span class="cal-time">9:00 – 10:00 PM IST</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this course</p>
+        <div class="price-row">
+          <span class="original">₹60,000</span>
+          <span class="discounted">₹39,999</span>
+        </div>
+        <p class="savings" style="color:#dc2626;">8 discount coupons left</p>
+        <a class="enroll-btn" href="https://rzp.io/rzp/WsvjSTg5" target="_blank" rel="noopener">Enroll Now →</a>
+        <p class="guarantee">Live classes</p>
+        <p class="guarantee">Lifetime access to recordings</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>
