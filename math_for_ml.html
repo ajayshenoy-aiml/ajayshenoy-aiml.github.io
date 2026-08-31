@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math for Machine Learning — Ajay Shenoy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+
+    nav {
+      padding: 28px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    nav .brand { font-weight: 700; font-size: 1rem; color: #111; text-decoration: none; }
+    nav .links a { font-size: 0.9rem; color: #555; text-decoration: none; }
+    nav .links a:hover { color: #111; }
+
+    /* Two-column layout: main content + sticky sidebar */
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+      gap: 48px;
+    }
+
+    .main-col {
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 80px;
+    }
+
+    /* Sticky enroll sidebar */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 32px;
+      padding-top: 48px;
+    }
+
+    .enroll-card {
+      border: 1.5px solid #2563eb;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .enroll-card .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+    .enroll-card .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-bottom: 4px;
+    }
+    .enroll-card .original {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .enroll-card .original::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 44%;
+      height: 2px;
+      background: rgba(220, 38, 38, 0.7);
+    }
+    .enroll-card .discounted {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      letter-spacing: -0.02em;
+    }
+    .enroll-card .savings {
+      font-size: 0.8rem;
+      color: #16a34a;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .enroll-btn {
+      display: block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .enroll-btn:hover { background: #1d4ed8; }
+    .enroll-card .guarantee {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discount-divider {
+      margin: 20px 0 16px;
+      border-top: 1px solid #e8eef8;
+    }
+    .discount-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .discount-link {
+      display: block;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .discount-link:hover { text-decoration: underline; }
+
+    /* Main content */
+    .breadcrumb {
+      padding: 20px 0 0;
+      font-size: 0.82rem;
+      color: #aaa;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .breadcrumb a { color: #aaa; text-decoration: none; }
+    .breadcrumb a:hover { color: #2563eb; }
+    .breadcrumb .sep { color: #ddd; }
+
+    .hero {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hero .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero .sub {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .hero .detail {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.75;
+    }
+
+    /* Running examples strip */
+    .examples-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .example-chip {
+      background: #f8faff;
+      border: 1px solid #e0e8ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .example-chip .chip-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93a3c8;
+      margin-bottom: 4px;
+    }
+    .example-chip .chip-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1e3a6e;
+    }
+
+    /* What you'll learn */
+    .learn-section {
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+    .learn-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    .learn-item .check {
+      color: #2563eb;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modules { padding: 20px 0; }
+    .module-list { display: flex; flex-direction: column; }
+    .module-item {
+      display: flex;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .module-item:first-child { border-top: 1px solid #f0f0f0; }
+    .module-item .num {
+      font-size: 0.78rem;
+      color: #111;
+      font-weight: 600;
+      min-width: 32px;
+      padding-top: 3px;
+    }
+    .module-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .module-item .desc {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .module-item .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topic-tag {
+      font-size: 0.72rem;
+      background: #f4f4f5;
+      color: #555;
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+
+    .cohort-section {
+      padding: 32px 0 0;
+    }
+    .cohort-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .cohort-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111;
+    }
+    .cohort-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 99px;
+      padding: 2px 9px;
+    }
+    .cohort-summary {
+      font-size: 0.88rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid #f0f0f0;
+    }
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .schedule-cal {
+      flex-shrink: 0;
+      width: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .cal-month {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 3px 0 2px;
+      line-height: 1;
+    }
+    .cal-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111;
+      background: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 8px 0;
+    }
+    .schedule-num {
+      font-size: 0.72rem;
+      color: #bbb;
+      font-weight: 500;
+      min-width: 16px;
+    }
+    .schedule-date {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #111;
+      min-width: 130px;
+    }
+    .schedule-time {
+      font-size: 0.82rem;
+      color: #888;
+    }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 28px 40px;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
+      .page-layout { flex-direction: column; padding: 0 20px; }
+      .sidebar { width: 100%; position: static; padding-top: 0; }
+      .learn-grid { grid-template-columns: 1fr; }
+      nav { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="brand" href="index.html">Ajay Shenoy</a>
+    <div class="links">
+      <a href="index.html">Courses</a>
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <div class="main-col">
+      <div class="breadcrumb">
+        <a href="index.html">Courses</a>
+        <span class="sep">/</span>
+        <span>Math for Machine Learning</span>
+      </div>
+
+      <div class="hero">
+        <span class="tag">Mathematics for ML · 4 Modules</span>
+        <h1>Math for Machine Learning</h1>
+        <p class="sub">Probability, linear algebra, calculus and optimization, developed as a single continuous argument.</p>
+        <p class="detail">We organize the mathematics of machine learning around one problem: <em>given data, fit a model to it.</em> Two instances of this problem are carried in parallel throughout: the prediction of a <strong>number</strong> (regression) and the prediction of a <strong>label</strong> (classification). We show that probability supplies the loss function for both, that linear algebra supplies the model, that calculus supplies the means of searching for its parameters, and that constrained optimization yields ridge regression, PCA and the support vector machine. No concept is introduced before the problem that requires it, and every result is derived by hand.</p>
+      </div>
+
+      <div class="modules">
+        <p class="section-title" style="color: #111;">Modules</p>
+        <div class="module-list">
+
+          <div class="module-item">
+            <span class="num">01</span>
+            <div>
+              <h3>Probability: Where Loss Functions Come From</h3>
+              <p class="desc">We develop the language of probability from the axioms through conditioning, Bayes' formula, random variables and the principal distributions. We then introduce maximum likelihood estimation and show that the loss functions used throughout machine learning are not arbitrary design choices but consequences of an assumed noise model: assuming <em>Gaussian</em> noise about a continuous target yields squared error, while assuming a <em>Bernoulli</em> outcome over a label yields cross-entropy. We thereby obtain, from a single principle, the two objectives that the remaining three modules are devoted to minimizing.</p>
+              <div class="topics">
+                <span class="topic-tag">Sample spaces &amp; events</span>
+                <span class="topic-tag">Axioms of probability</span>
+                <span class="topic-tag">Conditional probability</span>
+                <span class="topic-tag">Bayes' formula</span>
+                <span class="topic-tag">Independence &amp; naive Bayes</span>
+                <span class="topic-tag">Random variables</span>
+                <span class="topic-tag">Expectation &amp; variance</span>
+                <span class="topic-tag">Bernoulli &amp; Binomial</span>
+                <span class="topic-tag">The Gaussian</span>
+                <span class="topic-tag">Likelihood &amp; MLE</span>
+                <span class="topic-tag">MLE → squared error</span>
+                <span class="topic-tag">MLE → cross-entropy</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">02</span>
+            <div>
+              <h3>Linear Algebra: One Model, Two Readings</h3>
+              <p class="desc">We represent a dataset as a matrix of row vectors and derive the dot product as a consequence of matrix multiplication rather than as a definition. We then show that the single expression <span style="white-space:nowrap">wᵀx + w₀</span> admits two distinct readings. Interpreted as a <em>predicted value</em>, it gives linear regression, for which we derive the normal equations and a closed-form solution. Interpreted through its <em>sign</em>, it partitions space into halfspaces and gives a classifier, with its magnitude measuring distance from the decision boundary. We conclude by composing it with the sigmoid to obtain logistic regression, recovering the cross-entropy objective of Module 1.</p>
+              <div class="topics">
+                <span class="topic-tag">Vectors &amp; matrices</span>
+                <span class="topic-tag">Datasets as matrices</span>
+                <span class="topic-tag">Matrix multiplication</span>
+                <span class="topic-tag">Dot product</span>
+                <span class="topic-tag">Lines, planes, hyperplanes</span>
+                <span class="topic-tag">Projections &amp; signed distance</span>
+                <span class="topic-tag">Halfspaces</span>
+                <span class="topic-tag">Norms &amp; unit vectors</span>
+                <span class="topic-tag">Solving linear systems</span>
+                <span class="topic-tag">Rank &amp; invertibility</span>
+                <span class="topic-tag">Linear regression</span>
+                <span class="topic-tag">Normal equations</span>
+                <span class="topic-tag">Least squares</span>
+                <span class="topic-tag">Logistic regression</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">03</span>
+            <div>
+              <h3>Calculus &amp; Optimization: Finding the Best w</h3>
+              <p class="desc">We observe that the closed-form solution of Module 2 requires a matrix inversion that becomes intractable at scale and unavailable once the model is no longer linear, and that logistic regression admits no closed form at all. Motivated by this, we develop limits, continuity and differentiation, and introduce the gradient as a vector of partial derivatives indicating the direction of steepest ascent. We show that descending along its negative yields a single algorithm that solves linear regression, logistic regression and the perceptron alike, and we derive each update rule by hand from its corresponding loss. We further address the learning rate, convexity and the stochastic variant used at scale.</p>
+              <div class="topics">
+                <span class="topic-tag">Why calculus is needed</span>
+                <span class="topic-tag">Limits &amp; continuity</span>
+                <span class="topic-tag">Derivatives</span>
+                <span class="topic-tag">Partial derivatives</span>
+                <span class="topic-tag">The gradient</span>
+                <span class="topic-tag">Gradient descent</span>
+                <span class="topic-tag">Learning rate</span>
+                <span class="topic-tag">GD for linear regression</span>
+                <span class="topic-tag">GD for logistic regression</span>
+                <span class="topic-tag">Perceptron update rule</span>
+                <span class="topic-tag">Convexity</span>
+                <span class="topic-tag">Stochastic gradient descent</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <span class="num">04</span>
+            <div>
+              <h3>Constrained Optimization: Ridge, PCA and SVM</h3>
+              <p class="desc">We extend the preceding development to the case in which the parameter vector is not free but subject to constraint, and present the method of Lagrange multipliers together with its geometric interpretation. We then derive three algorithms as direct consequences. <em>Ridge regression</em> is shown to be least squares under a budget on ‖w‖, which accounts for the shrinkage induced by regularization. <em>Principal component analysis</em> is formulated as the maximization of projected variance subject to ‖u‖ = 1, whose solution we show to be an eigenvector of the covariance matrix, and we apply it to the compression of high-dimensional image data. <em>Support vector machines</em> are obtained by maximizing the margin among all separating hyperplanes, and we treat the hard- and soft-margin formulations, the dual, and its extension to kernels.</p>
+              <div class="topics">
+                <span class="topic-tag">Constraints &amp; contours</span>
+                <span class="topic-tag">Lagrange multipliers</span>
+                <span class="topic-tag">Ridge regression</span>
+                <span class="topic-tag">Regularization</span>
+                <span class="topic-tag">Eigenvalues &amp; eigenvectors</span>
+                <span class="topic-tag">Covariance matrix</span>
+                <span class="topic-tag">PCA</span>
+                <span class="topic-tag">Dimensionality reduction</span>
+                <span class="topic-tag">Margins</span>
+                <span class="topic-tag">SVM: hard &amp; soft margin</span>
+                <span class="topic-tag">The dual</span>
+                <span class="topic-tag">Kernels</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="examples-section">
+        <p class="section-title">Algorithms You'll Derive From Scratch</p>
+        <div class="examples-grid">
+          <div class="example-chip">
+            <p class="chip-label">Probability</p>
+            <p class="chip-name">Maximum Likelihood</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Probability</p>
+            <p class="chip-name">Naive Bayes</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Regression</p>
+            <p class="chip-name">Linear Regression</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Regression</p>
+            <p class="chip-name">Least Squares &amp; Normal Equations</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Classification</p>
+            <p class="chip-name">Logistic Regression</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Classification</p>
+            <p class="chip-name">The Perceptron</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Optimization</p>
+            <p class="chip-name">Gradient Descent</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Optimization</p>
+            <p class="chip-name">Stochastic Gradient Descent</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Constrained Optimization</p>
+            <p class="chip-name">Lagrange Multipliers</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Constrained Optimization</p>
+            <p class="chip-name">Ridge Regression</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Constrained Optimization</p>
+            <p class="chip-name">PCA</p>
+          </div>
+          <div class="example-chip">
+            <p class="chip-label">Constrained Optimization</p>
+            <p class="chip-name">Support Vector Machines</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-section">
+        <p class="section-title">What you'll learn</p>
+        <div class="learn-grid">
+          <div class="learn-item"><span class="check">✓</span> Where loss functions actually come from: Gaussian noise gives you squared error, a Bernoulli label gives you cross-entropy, both from the same principle</div>
+          <div class="learn-item"><span class="check">✓</span> Why the dot product is not a definition to memorise, but something that falls out of matrix multiplication</div>
+          <div class="learn-item"><span class="check">✓</span> How one expression, wᵀx + w₀, is a predicted number in regression and a signed distance in classification</div>
+          <div class="learn-item"><span class="check">✓</span> How to derive the normal equations, and why least squares has a closed-form answer when logistic regression doesn't</div>
+          <div class="learn-item"><span class="check">✓</span> When the closed form stops being usable, and why that, not elegance, is the reason gradient descent exists</div>
+          <div class="learn-item"><span class="check">✓</span> The gradient as a vector, and why gradient descent moves in the negative of it</div>
+          <div class="learn-item"><span class="check">✓</span> How to derive the update rules for linear regression, logistic regression and the perceptron by hand from their losses</div>
+          <div class="learn-item"><span class="check">✓</span> How a line becomes a plane becomes a hyperplane, and why d dimensions is no harder than two</div>
+          <div class="learn-item"><span class="check">✓</span> Why ridge regression is just least squares with a budget on ‖w‖, and why that shrinks coefficients</div>
+          <div class="learn-item"><span class="check">✓</span> Why PCA's answer is an eigenvector, arrived at as a Lagrange multiplier problem rather than a black box</div>
+          <div class="learn-item"><span class="check">✓</span> How to compress 4096-dimensional images down to a handful of components and still recognise faces</div>
+          <div class="learn-item"><span class="check">✓</span> Why the SVM picks the maximum-margin hyperplane, and what the dual is really doing</div>
+        </div>
+      </div>
+
+      <div class="cohort-section">
+        <div class="cohort-header">
+          <span class="cohort-title">September Cohort</span>
+          <span class="cohort-tag">Two Months · Live Course</span>
+        </div>
+        <p class="cohort-summary">Every Sunday, 6:00 – 8:00 PM IST &nbsp;·&nbsp; 6 September – 25 October 2026</p>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <span class="schedule-num">1</span>
+            <div class="schedule-cal"><div class="cal-month">Sep</div><div class="cal-day">6</div></div>
+            <span class="schedule-date">Sunday, 6 September</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">2</span>
+            <div class="schedule-cal"><div class="cal-month">Sep</div><div class="cal-day">13</div></div>
+            <span class="schedule-date">Sunday, 13 September</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">3</span>
+            <div class="schedule-cal"><div class="cal-month">Sep</div><div class="cal-day">20</div></div>
+            <span class="schedule-date">Sunday, 20 September</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">4</span>
+            <div class="schedule-cal"><div class="cal-month">Sep</div><div class="cal-day">27</div></div>
+            <span class="schedule-date">Sunday, 27 September</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">5</span>
+            <div class="schedule-cal"><div class="cal-month">Oct</div><div class="cal-day">4</div></div>
+            <span class="schedule-date">Sunday, 4 October</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">6</span>
+            <div class="schedule-cal"><div class="cal-month">Oct</div><div class="cal-day">11</div></div>
+            <span class="schedule-date">Sunday, 11 October</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">7</span>
+            <div class="schedule-cal"><div class="cal-month">Oct</div><div class="cal-day">18</div></div>
+            <span class="schedule-date">Sunday, 18 October</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+          <div class="schedule-item">
+            <span class="schedule-num">8</span>
+            <div class="schedule-cal"><div class="cal-month">Oct</div><div class="cal-day">25</div></div>
+            <span class="schedule-date">Sunday, 25 October</span>
+            <span class="schedule-time">6:00 – 8:00 PM IST</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="enroll-card">
+        <p class="label">Enroll in this course</p>
+        <div class="price-row">
+          <span class="original">₹30,000</span>
+          <span class="discounted">₹14,999</span>
+        </div>
+        <p class="savings" style="color:#dc2626;">10 discount coupons left</p>
+        <a class="enroll-btn" href="https://rzp.io/rzp/cWHkt2tM" target="_blank" rel="noopener">Enroll Now →</a>
+        <p class="guarantee">Live classes</p>
+        <p class="guarantee">Lifetime access to recordings</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>© 2026 Ajay Shenoy</footer>
+
+</body>
+</html>
